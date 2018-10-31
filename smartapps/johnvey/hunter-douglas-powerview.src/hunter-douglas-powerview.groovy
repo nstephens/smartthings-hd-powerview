@@ -17,10 +17,10 @@
  */
 
 definition(
-  name: "Hunter Douglas PowerView",
-  namespace: "johnvey",
+  name: "HD PowerView Minimum",
+  namespace: "nickstephens",
   author: "Johnvey Hwang",
-  description: "Controls shades and scenes managed by your PowerView hub",
+  description: "Control PowerView Roller Shades",
   category: "My Apps",
   iconUrl: "https://silver-saint.netlify.com/assets/powerview-icon.png",
   iconX2Url: "https://silver-saint.netlify.com/assets/powerview-icon-2x.png",
@@ -33,18 +33,18 @@ preferences {
 
 def singlePagePref() {
     return dynamicPage(
-        name: "singlePagePref", 
-        install: canInstall(), 
-        uninstall: true, 
+        name: "singlePagePref",
+        install: canInstall(),
+        uninstall: true,
         refreshInterval: getPrefInterval()
     ) {
         // setup basic connection to hub
         section("Hub setup") {
             input(
-                name: "hubIP", 
-                title: "IP Address", 
-                type: "text", 
-                required: false, 
+                name: "hubIP",
+                title: "IP Address",
+                type: "text",
+                required: false,
                 submitOnChange: true
             )
             if (hubIP) {
@@ -73,11 +73,11 @@ def singlePagePref() {
             section("Shades") {
                 if (shadeCount > 0) {
                     input(
-                        name: "selectedShades", 
-                        title: "Linked shades (${shadeCount} available)", 
-                        type: "enum", 
-                        options: foundShades, 
-                        multiple: true, 
+                        name: "selectedShades",
+                        title: "Linked shades (${shadeCount} available)",
+                        type: "enum",
+                        options: foundShades,
+                        multiple: true,
                         required: false
                     )
                 } else {
@@ -88,11 +88,11 @@ def singlePagePref() {
             section("Scenes") {
                 if (sceneCount > 0) {
                     input(
-                        name: "selectedScenes", 
-                        title: "Linked scenes (${sceneCount} available)", 
-                        type: "enum", 
+                        name: "selectedScenes",
+                        title: "Linked scenes (${sceneCount} available)",
+                        type: "enum",
                         options: foundScenes,
-                        multiple: true, 
+                        multiple: true,
                         required: false
                     )
                 } else {
@@ -103,11 +103,11 @@ def singlePagePref() {
             section("Scene Collections") {
                 if (sceneCollectionCount > 0) {
                     input(
-                        name: "selectedSceneCollections", 
-                        title: "Linked scene collections (${sceneCollectionCount} available)", 
-                        type: "enum", 
+                        name: "selectedSceneCollections",
+                        title: "Linked scene collections (${sceneCollectionCount} available)",
+                        type: "enum",
                         options: foundSceneCollections,
-                        multiple: true, 
+                        multiple: true,
                         required: false
                     )
                 } else {
@@ -140,10 +140,10 @@ def getHubID() {
     if (myHub) {
         hubID = myHub.id
     } else {
-        def hubs = location.hubs.findAll { 
-            it.type == physicalgraph.device.HubType.PHYSICAL 
-        } 
-        if (hubs.size() == 1) hubID = hubs[0].id 
+        def hubs = location.hubs.findAll {
+            it.type == physicalgraph.device.HubType.PHYSICAL
+        }
+        if (hubs.size() == 1) hubID = hubs[0].id
     }
     return hubID
 }
@@ -180,7 +180,7 @@ def parseDeviceType(deviceNetworkId) {
 
 /**
  * Fetches PV hub information
- * 
+ *
  * Requires that the user input the `hubIP` value
  */
 def fetchHubInfo() {
@@ -426,8 +426,8 @@ def installShade(enumLabel) {
 
     if (!dev) {
         def addedDevice = addChildDevice(
-            "johnvey", 
-            "Hunter Douglas PowerView Shade", 
+            "johnvey",
+            "Hunter Douglas PowerView Shade",
             shadeInfo.deviceNetworkId,
             getHubID(),
             [name: shadeInfo.id, label: shadeInfo.label, completedSetup: true]
@@ -486,8 +486,8 @@ def installScene(enumLabel) {
 
     if (!dev) {
         def addedDevice = addChildDevice(
-            "johnvey", 
-            "Hunter Douglas PowerView Scene", 
+            "johnvey",
+            "Hunter Douglas PowerView Scene",
             sceneInfo.deviceNetworkId,
             getHubID(),
             [name: sceneInfo.id, label: sceneInfo.label, completedSetup: true]
@@ -557,8 +557,8 @@ def installSceneCollection(enumLabel) {
 
     if (!dev) {
         def addedDevice = addChildDevice(
-            "johnvey", 
-            "Hunter Douglas PowerView Scene Collection", 
+            "johnvey",
+            "Hunter Douglas PowerView Scene Collection",
             sceneCollectionInfo.deviceNetworkId,
             getHubID(),
             [name: sceneCollectionInfo.id, label: sceneCollectionInfo.label, completedSetup: true]
