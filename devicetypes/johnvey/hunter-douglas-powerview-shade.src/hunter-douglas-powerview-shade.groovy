@@ -56,9 +56,9 @@ metadata {
         // define top color status block
         multiAttributeTile(name:"windowShade", type: "lighting", width: 6, height: 4, canChangeIcon: true) {
             tileAttribute ("device.windowShade", key: "PRIMARY_CONTROL") {
-                attributeState "open", label:'V. Open', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"closing"
+            //    attributeState "open", label:'Open', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"closing"
                 attributeState "partial_vane", label:'V. Partial', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"closing"
-                attributeState "closed", label:'V. Closed', action:"windowShade.open", icon:"st.Home.home9", backgroundColor:"#ffffff", nextState:"opening"
+                attributeState "closed", label:'Closed', action:"windowShade.open", icon:"st.Home.home9", backgroundColor:"#ffffff", nextState:"opening"
                 attributeState "opening", label:'Opening', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"open"
                 attributeState "closing", label:'Closing', action:"windowShade.open", icon:"st.Home.home9", backgroundColor:"#ffffff", nextState:"opening"
             }
@@ -74,14 +74,14 @@ metadata {
 
         //-- top row --
         // open shade
-        standardTile("open", "device.switch", width: 2, height: 2,
+        standardTile("open", "device.switch", width: 3, height: 2,
                     inactiveLabel: false, decoration: "flat") {
-            state("default", label:'Open shade', action:"on",
+            state("default", label:'Open shade', action:"open",
                 icon:"st.doors.garage.garage-opening")
         }
 
         // refresh
-        standardTile("refresh", "device.switch", width: 2, height: 2,
+        standardTile("refresh", "device.switch", width: 3, height: 2,
                     inactiveLabel: false, decoration: "flat") {
             state("default", label:'Refresh', action:"refresh",
                 icon:"st.secondary.refresh-icon")
@@ -89,13 +89,13 @@ metadata {
 
         //-- middle row --
         // close shade
-        standardTile("close", "device.switch", width: 2, height: 2,
+        standardTile("close", "device.switch", width: 3, height: 2,
                     inactiveLabel: false, decoration: "flat") {
-            state("default", label:'Close shade', action:"off",
+            state("default", label:'Close shade', action:"close",
                 icon:"st.doors.garage.garage-closing")
         }
         // battery level
-        valueTile("battery", "device.battery", width: 2, height: 2, decoration: "flat") {
+        valueTile("battery", "device.battery", width: 3, height: 2, decoration: "flat") {
             state("battery", label:'${currentValue}%\nBattery', defaultState: true, backgroundColors: [
                 [value: 0, color: "#C70039"],
                 [value: 20, color: "#FFFFFF"]
