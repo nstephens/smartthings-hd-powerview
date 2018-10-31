@@ -17,10 +17,10 @@
  */
 
 definition(
-  name: "HD PowerView Minimum",
+  name: "Hunter Douglas PowerView",
   namespace: "johnvey",
   author: "Johnvey Hwang",
-  description: "Control PowerView Roller Shades",
+  description: "HDPV Stripped down",
   category: "My Apps",
   iconUrl: "https://silver-saint.netlify.com/assets/powerview-icon.png",
   iconX2Url: "https://silver-saint.netlify.com/assets/powerview-icon-2x.png",
