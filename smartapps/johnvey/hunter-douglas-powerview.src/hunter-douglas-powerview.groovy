@@ -18,7 +18,7 @@
 
 definition(
   name: "HD PowerView Minimum",
-  namespace: "nickstephens",
+  namespace: "johnvey",
   author: "Johnvey Hwang",
   description: "Control PowerView Roller Shades",
   category: "My Apps",
