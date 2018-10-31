@@ -56,8 +56,8 @@ metadata {
         // define top color status block
         multiAttributeTile(name:"windowShade", type: "lighting", width: 6, height: 4, canChangeIcon: true) {
             tileAttribute ("device.windowShade", key: "PRIMARY_CONTROL") {
-            //    attributeState "open", label:'Open', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"closing"
-                attributeState "partial_vane", label:'V. Partial', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"closing"
+                attributeState "open", label:'Open', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"closing"
+            //    attributeState "partial_vane", label:'V. Partial', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"closing"
                 attributeState "closed", label:'Closed', action:"windowShade.open", icon:"st.Home.home9", backgroundColor:"#ffffff", nextState:"opening"
                 attributeState "opening", label:'Opening', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"open"
                 attributeState "closing", label:'Closing', action:"windowShade.open", icon:"st.Home.home9", backgroundColor:"#ffffff", nextState:"opening"
@@ -76,7 +76,7 @@ metadata {
         // open shade
         standardTile("open", "device.switch", width: 3, height: 2,
                     inactiveLabel: false, decoration: "flat") {
-            state("default", label:'Open shade', action:"open",
+            state("default", label:'Open shade!!', action:"open",
                 icon:"st.doors.garage.garage-opening")
         }
 
