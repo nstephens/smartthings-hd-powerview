@@ -56,9 +56,9 @@ metadata {
         // define top color status block
         multiAttributeTile(name:"windowShade", type: "lighting", width: 6, height: 4, canChangeIcon: true) {
             tileAttribute ("device.windowShade", key: "PRIMARY_CONTROL") {
-                attributeState "open", label:'Open', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"closing"
-            //    attributeState "partial_vane", label:'V. Partial', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"closing"
-                attributeState "closed", label:'Closed', action:"windowShade.open", icon:"st.Home.home9", backgroundColor:"#ffffff", nextState:"opening"
+                attributeState "open", label:'V. Open', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"closing"
+                attributeState "partial_vane", label:'V. Partial', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"closing"
+                attributeState "closed", label:'V. Closed', action:"windowShade.open", icon:"st.Home.home9", backgroundColor:"#ffffff", nextState:"opening"
                 attributeState "opening", label:'Opening', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"open"
                 attributeState "closing", label:'Closing', action:"windowShade.open", icon:"st.Home.home9", backgroundColor:"#ffffff", nextState:"opening"
             }
@@ -74,14 +74,19 @@ metadata {
 
         //-- top row --
         // open shade
-        standardTile("open", "device.switch", width: 3, height: 2,
+        standardTile("open", "device.switch", width: 2, height: 2,
                     inactiveLabel: false, decoration: "flat") {
-            state("default", label:'Open shade!!', action:"open",
+            state("default", label:'Open shade', action:"on",
                 icon:"st.doors.garage.garage-opening")
         }
-
+        // open vanes
+        standardTile("on", "device.windowShade", width: 2, height: 2,
+                    inactiveLabel: false, decoration: "flat") {
+            state("default", label:'Open vanes', action:"open",
+                icon:"st.doors.garage.garage-opening")
+        }
         // refresh
-        standardTile("refresh", "device.switch", width: 3, height: 2,
+        standardTile("refresh", "device.switch", width: 2, height: 2,
                     inactiveLabel: false, decoration: "flat") {
             state("default", label:'Refresh', action:"refresh",
                 icon:"st.secondary.refresh-icon")
@@ -89,13 +94,19 @@ metadata {
 
         //-- middle row --
         // close shade
-        standardTile("close", "device.switch", width: 3, height: 2,
+        standardTile("close", "device.switch", width: 2, height: 2,
                     inactiveLabel: false, decoration: "flat") {
-            state("default", label:'Close shade', action:"close",
+            state("default", label:'Close shade', action:"off",
+                icon:"st.doors.garage.garage-closing")
+        }
+        // close vanes
+        standardTile("off", "device.windowShade", width: 2, height: 2,
+                    inactiveLabel: false, decoration: "flat") {
+            state("default", label:'Close vanes', action:"close",
                 icon:"st.doors.garage.garage-closing")
         }
         // battery level
-        valueTile("battery", "device.battery", width: 3, height: 2, decoration: "flat") {
+        valueTile("battery", "device.battery", width: 2, height: 2, decoration: "flat") {
             state("battery", label:'${currentValue}%\nBattery', defaultState: true, backgroundColors: [
                 [value: 0, color: "#C70039"],
                 [value: 20, color: "#FFFFFF"]
@@ -127,11 +138,13 @@ metadata {
 // set shade closed {"shade":{"id":1694,"positions":{"position1":0,"posKind1":1}}}
 @Field def ShadeComponentType = [
     SHADE: 1,
+    VANE: 3
 ]
 
 // define max (open) setting value
 @Field def ShadeMaxPosition = [
     SHADE: 65535,
+    VANE: 32767
 ]
 
 /**
@@ -156,6 +169,8 @@ private setPosition(int level, int type) {
     def rawPosition = 0
     if (type == ShadeComponentType.SHADE) {
         rawPosition = level/100 * ShadeMaxPosition.SHADE
+    } else if (type == ShadeComponentType.VANE) {
+        rawPosition = level/100 * ShadeMaxPosition.VANE
     }
     rawPosition = (int) rawPosition // round value
     def rawType = type
@@ -288,6 +303,21 @@ def parseShadeData(payload) {
         // if shade level is reported, then vane is closed
         sendEvent(name: 'windowShade', value: 'closed')
 
+    } else if (shade.positions.posKind1 == ShadeComponentType.VANE) {
+        def vaneLevel = (int) shade.positions.position1 / ShadeMaxPosition.VANE * 100
+        log.debug("Setting vane level: ${vaneLevel}")
+        def stateName = ''
+        if (vaneLevel >= 99) {
+            stateName = 'open'
+        } else if (vaneLevel > 1) {
+            stateName = 'partial_vane'
+        } else {
+            stateName = 'closed'
+        }
+        sendEvent(name: 'windowShade', value: stateName)
+        sendEvent(name: 'switch', value: 'off')
+        // if vane level is reported, then shade is closed
+        sendEvent(name: 'level', value: 0)
     }
 
     // parse shade battery level info
@@ -357,16 +387,16 @@ def refresh() {
 /**
  * Fully opens the shade
  */
-def open() {
-    log.debug "Executing 'open'"
+def on() {
+    log.debug "Executing 'on'"
     return setPosition(100, ShadeComponentType.SHADE)
 }
 
 /**
  * Fully closes the shade, vanes closed
  */
-def close() {
-    log.debug "Executing 'close'"
+def off() {
+    log.debug "Executing 'off'"
     return setPosition(0, ShadeComponentType.SHADE)
 }
 
@@ -382,6 +412,34 @@ def setLevel(level, rate=0) {
 //
 // windowShade commands
 //
+
+/**
+ * Full opens the vanes. If the shade level position is > 0, the shade will
+ * first close before opening the vanes.
+ */
+def open() {
+    log.debug "Executing 'open'"
+    return setPosition(100, ShadeComponentType.VANE)
+}
+
+/**
+ * Closes the vanes. If the shade level position is > 0, the shade will
+ * close. (vanes are already closed)
+ */
+def close() {
+    log.debug "Executing 'close'"
+    return setPosition(0, ShadeComponentType.VANE)
+}
+
+/**
+ * Sets the vanes to the halfway point. If the shade level position is > 0, the shade will
+ * first close.
+ * TODO: this is hard-coded to 50%. It should really be a preference setting.
+ */
+def presetPosition() {
+    log.debug "Executing 'presetPosition'"
+    return setPosition(50, ShadeComponentType.VANE)
+}
 
 def jog() {
     log.debug "Executing jog()"
