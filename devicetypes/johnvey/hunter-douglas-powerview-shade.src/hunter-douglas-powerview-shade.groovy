@@ -56,9 +56,9 @@ metadata {
         // define top color status block
         multiAttributeTile(name:"windowShade", type: "lighting", width: 6, height: 4, canChangeIcon: true) {
             tileAttribute ("device.windowShade", key: "PRIMARY_CONTROL") {
-                attributeState "open", label:'V. Open', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"closing"
-                attributeState "partial_vane", label:'V. Partial', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"closing"
-                attributeState "closed", label:'V. Closed', action:"windowShade.open", icon:"st.Home.home9", backgroundColor:"#ffffff", nextState:"opening"
+                attributeState "open", label:'Open', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"closing"
+                attributeState "partial_shade", label:'Partial', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"closing"
+                attributeState "closed", label:'Closed', action:"windowShade.open", icon:"st.Home.home9", backgroundColor:"#ffffff", nextState:"opening"
                 attributeState "opening", label:'Opening', action:"windowShade.close", icon:"st.Home.home9", backgroundColor:"#00a0dc", nextState:"open"
                 attributeState "closing", label:'Closing', action:"windowShade.open", icon:"st.Home.home9", backgroundColor:"#ffffff", nextState:"opening"
             }
@@ -76,35 +76,38 @@ metadata {
         // open shade
         standardTile("open", "device.switch", width: 2, height: 2,
                     inactiveLabel: false, decoration: "flat") {
-            state("default", label:'Open shade', action:"on",
+            state("default", label:'Open shade', action:"open",
                 icon:"st.doors.garage.garage-opening")
-        }
-        // open vanes
-        standardTile("on", "device.windowShade", width: 2, height: 2,
-                    inactiveLabel: false, decoration: "flat") {
-            state("default", label:'Open vanes', action:"open",
-                icon:"st.doors.garage.garage-opening")
-        }
-        // refresh
-        standardTile("refresh", "device.switch", width: 2, height: 2,
-                    inactiveLabel: false, decoration: "flat") {
-            state("default", label:'Refresh', action:"refresh",
-                icon:"st.secondary.refresh-icon")
         }
 
-        //-- middle row --
         // close shade
         standardTile("close", "device.switch", width: 2, height: 2,
                     inactiveLabel: false, decoration: "flat") {
-            state("default", label:'Close shade', action:"off",
+            state("default", label:'Close shade', action:"close",
                 icon:"st.doors.garage.garage-closing")
         }
-        // close vanes
-        standardTile("off", "device.windowShade", width: 2, height: 2,
-                    inactiveLabel: false, decoration: "flat") {
-            state("default", label:'Close vanes', action:"close",
-                icon:"st.doors.garage.garage-closing")
-        }
+
+        // open vanes
+        // standardTile("on", "device.windowShade", width: 2, height: 2,
+        //             inactiveLabel: false, decoration: "flat") {
+        //     state("default", label:'Open vanes', action:"open",
+        //         icon:"st.doors.garage.garage-opening")
+        // }
+        // refresh
+        // standardTile("refresh", "device.switch", width: 2, height: 2,
+        //             inactiveLabel: false, decoration: "flat") {
+        //     state("default", label:'Refresh', action:"refresh",
+        //         icon:"st.secondary.refresh-icon")
+        // }
+
+        //-- middle row --
+
+        // // close vanes
+        // standardTile("off", "device.windowShade", width: 2, height: 2,
+        //             inactiveLabel: false, decoration: "flat") {
+        //     state("default", label:'Close vanes', action:"close",
+        //         icon:"st.doors.garage.garage-closing")
+        // }
         // battery level
         valueTile("battery", "device.battery", width: 2, height: 2, decoration: "flat") {
             state("battery", label:'${currentValue}%\nBattery', defaultState: true, backgroundColors: [
@@ -115,11 +118,11 @@ metadata {
 
         //-- bottom row --
         // jog shade
-        standardTile("jog", "device.windowShade", width: 2, height: 2,
-                    inactiveLabel: false, decoration: "flat") {
-            state("default", label:'Jog shade', action:"jog",
-                icon:"st.motion.motion.inactive")
-        }
+        // standardTile("jog", "device.windowShade", width: 2, height: 2,
+        //             inactiveLabel: false, decoration: "flat") {
+        //     state("default", label:'Jog shade', action:"jog",
+        //         icon:"st.motion.motion.inactive")
+        // }
 
         main(["windowShade"])
     }
@@ -169,9 +172,11 @@ private setPosition(int level, int type) {
     def rawPosition = 0
     if (type == ShadeComponentType.SHADE) {
         rawPosition = level/100 * ShadeMaxPosition.SHADE
-    } else if (type == ShadeComponentType.VANE) {
-        rawPosition = level/100 * ShadeMaxPosition.VANE
     }
+
+    // else if (type == ShadeComponentType.VANE) {
+    //     rawPosition = level/100 * ShadeMaxPosition.VANE
+    // }
     rawPosition = (int) rawPosition // round value
     def rawType = type
 
@@ -211,15 +216,15 @@ private forceUpdate(boolean requestBatteryLevel = false) {
  * the shade under control.
  {"shade":{"motion":"jog"}}
  */
-private startJog() {
-    def path = "/api/shades/${state.pvShadeId}"
-    def builder = new groovy.json.JsonBuilder()
-    builder.shade {
-        motion "jog"
-    }
-    def body = builder.toString()
-    return sendRequest('PUT', path, body)
-}
+// private startJog() {
+//     def path = "/api/shades/${state.pvShadeId}"
+//     def builder = new groovy.json.JsonBuilder()
+//     builder.shade {
+//         motion "jog"
+//     }
+//     def body = builder.toString()
+//     return sendRequest('PUT', path, body)
+// }
 
 /**
  * Returns a HTTP hubAction to be sent from the ST hub to the local PowerView
@@ -291,26 +296,28 @@ def parseShadeData(payload) {
     def shade = payload.shade
 
     // parse shade position info
+    // if (shade.positions.posKind1 == ShadeComponentType.SHADE) {
+    //     def shadeLevel = (int) shade.positions.position1 / ShadeMaxPosition.SHADE * 100
+    //     log.debug("Setting shade level: ${shadeLevel}")
+    //     sendEvent(name: 'level', value: shadeLevel)
+    //     if (shadeLevel > 0) {
+    //         sendEvent(name: 'switch', value: 'on')
+    //     } else {
+    //         sendEvent(name: 'switch', value: 'off')
+    //     }
+    //     // if shade level is reported, then vane is closed
+    //     sendEvent(name: 'windowShade', value: 'closed')
+
+    // } else
+
     if (shade.positions.posKind1 == ShadeComponentType.SHADE) {
         def shadeLevel = (int) shade.positions.position1 / ShadeMaxPosition.SHADE * 100
         log.debug("Setting shade level: ${shadeLevel}")
-        sendEvent(name: 'level', value: shadeLevel)
-        if (shadeLevel > 0) {
-            sendEvent(name: 'switch', value: 'on')
-        } else {
-            sendEvent(name: 'switch', value: 'off')
-        }
-        // if shade level is reported, then vane is closed
-        sendEvent(name: 'windowShade', value: 'closed')
-
-    } else if (shade.positions.posKind1 == ShadeComponentType.VANE) {
-        def vaneLevel = (int) shade.positions.position1 / ShadeMaxPosition.VANE * 100
-        log.debug("Setting vane level: ${vaneLevel}")
         def stateName = ''
-        if (vaneLevel >= 99) {
+        if (shadeLevel >= 99) {
             stateName = 'open'
-        } else if (vaneLevel > 1) {
-            stateName = 'partial_vane'
+        } else if (shadeLevel > 1) {
+            stateName = 'partial_shade'
         } else {
             stateName = 'closed'
         }
@@ -419,7 +426,7 @@ def setLevel(level, rate=0) {
  */
 def open() {
     log.debug "Executing 'open'"
-    return setPosition(100, ShadeComponentType.VANE)
+    return setPosition(100, ShadeComponentType.SHADE)
 }
 
 /**
@@ -428,7 +435,7 @@ def open() {
  */
 def close() {
     log.debug "Executing 'close'"
-    return setPosition(0, ShadeComponentType.VANE)
+    return setPosition(0, ShadeComponentType.SHADE)
 }
 
 /**
@@ -438,7 +445,7 @@ def close() {
  */
 def presetPosition() {
     log.debug "Executing 'presetPosition'"
-    return setPosition(50, ShadeComponentType.VANE)
+    return setPosition(50, ShadeComponentType.SHADE)
 }
 
 def jog() {

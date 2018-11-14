@@ -20,7 +20,7 @@ definition(
   name: "Hunter Douglas PowerView",
   namespace: "johnvey",
   author: "Johnvey Hwang",
-  description: "HDPV Stripped down for me...",
+  description: "HDPV without vanes",
   category: "My Apps",
   iconUrl: "https://silver-saint.netlify.com/assets/powerview-icon.png",
   iconX2Url: "https://silver-saint.netlify.com/assets/powerview-icon-2x.png",
