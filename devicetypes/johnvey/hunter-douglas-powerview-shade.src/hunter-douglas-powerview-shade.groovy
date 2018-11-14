@@ -74,14 +74,14 @@ metadata {
 
         //-- top row --
         // open shade
-        standardTile("open", "device.switch", width: 2, height: 2,
+        standardTile("open", "device.windowShade", width: 2, height: 2,
                     inactiveLabel: false, decoration: "flat") {
             state("default", label:'Open shade', action:"open",
                 icon:"st.doors.garage.garage-opening")
         }
 
         // close shade
-        standardTile("close", "device.switch", width: 2, height: 2,
+        standardTile("close", "device.windowShade", width: 2, height: 2,
                     inactiveLabel: false, decoration: "flat") {
             state("default", label:'Close shade', action:"close",
                 icon:"st.doors.garage.garage-closing")
